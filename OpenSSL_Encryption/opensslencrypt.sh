@@ -20,7 +20,7 @@
 
 
 
-while getopts "f:k:l:t:D:" flag
+while getopts "f:k:l:t:D:p:s:" flag
 do
 
         case "$flag" in
@@ -38,7 +38,7 @@ if [ "$file" == "" ]
 then
 
 cat << EOM
-Usage $0 -f [file] [-s] [-k publickey file] [-l keylen (chars)] [-p shred passes] [-D random/urandom]
+Usage $0 -f [file] [-s] [-k publickey file] [-l keylen (chars)] [-p shred passes] [-D random/urandom] [-s 1/0]
 Example: $0 -f myfile -k ~/public.pem -l 256 -t /tmp -D random
 
 
@@ -50,6 +50,7 @@ Arguments
          -l [keylen (chars)] - The number of characters to use for the One Time Password [Default = 256]
          -p [shred passes] - How many passes should shred make? [Default = 500]
          -D [random/urandom] - Should /dev/random or urandom be used for OTP generation (random may block) [Default = urandom]
+         -s Shred original 0 = no, 1= yes (default 0)
 
 
 EOM

@@ -74,7 +74,7 @@ if [ "$file" == "" ] && [ "$directory" == "" ]
 then
 
 cat << EOM
-Usage $0 [-f file] [-d directory] [-k private key file] [-c encrypted filename]
+Usage $0 [-f file] [-d directory] [-k private key file] [-c encrypted filename] [-r]
 Example: $0 -f myfile -k ~/public.pem -l 256 -t /tmp -D random
 
 
