@@ -15,12 +15,15 @@
 # -l [keylen (chars)] - The number of characters to use for the One Time Password [Default = 256]
 # -p [shred passes] - How many passes should shred make? [Default = 500]
 # -D [random/urandom] - Should /dev/random or urandom be used for OTP generation [Default = urandom]
+# -s - Shred the original file (default no)
+# -q - Quiet mode (no output)
+# 
 #
 
 
 
 
-while getopts "f:k:l:t:D:p:s:" flag
+while getopts "f:k:l:t:D:p:sq" flag
 do
 
         case "$flag" in
@@ -30,6 +33,7 @@ do
                 D) rand="$OPTARG";;
                 p) passes="$OPTARG";;
                 s) destroy=1;;
+		q) quiet=1;;
         esac
 done
 
@@ -38,7 +42,7 @@ if [ "$file" == "" ]
 then
 
 cat << EOM
-Usage $0 -f [file] [-s] [-k publickey file] [-l keylen (chars)] [-p shred passes] [-D random/urandom] [-s 1/0]
+Usage $0 -f [file] [-s] [-k publickey file] [-l keylen (chars)] [-p shred passes] [-D random/urandom] [-s]
 Example: $0 -f myfile -k ~/public.pem -l 256 -t /tmp -D random
 
 
@@ -50,7 +54,7 @@ Arguments
          -l [keylen (chars)] - The number of characters to use for the One Time Password [Default = 256]
          -p [shred passes] - How many passes should shred make? [Default = 500]
          -D [random/urandom] - Should /dev/random or urandom be used for OTP generation (random may block) [Default = urandom]
-         -s Shred original 0 = no, 1= yes (default 0)
+         -s Shred original
 
 
 EOM
@@ -67,9 +71,12 @@ keylen=${keylen:-256}
 passes=${passes:-500}
 rand=${rand:-"random"}
 destroy=${destroy:-0}
+quiet=${quiet:-0}
 
-
-echo "Encrypting $file"
+if [ "$quiet" == 0 ]
+then
+  echo "Encrypting $file"
+fi
 
 # Create the OTP
 cat /dev/$rand | tr -dc 'a-zA-Z0-9-_!@#$%^&*()_+{}|:<>?='|fold -w $keylen| head -n 1 > key.txt
@@ -83,12 +90,19 @@ openssl rsautl -encrypt -pubin -inkey $keyfile -in key.txt -out key.txt.enc
 # Package the two together
 tar -cf "$file.enc.tar" key.txt.enc "$file.enc"
 
-echo "Tidying up"
+if [ "$quiet" == 0 ]
+then
+  echo "Tidying up"
+fi
+
 rm -f key.txt.enc "$file.enc"
 shred -uz -n $passes key.txt
 
 if [ $destroy -eq 1 ]
 then
-        echo "Shredding original"
+	if [ "$quiet" == 0 ]
+	then
+	  echo "Shredding original"
+	fi
         shred -uz -n $passes "$file"
 fi
