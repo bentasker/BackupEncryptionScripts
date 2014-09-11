@@ -109,7 +109,7 @@ then
 
         cd $directory
         cur=`pwd`
-        find ./ -name *.enc.tar -type f | while read -r dir
+        find ./ -name '*.enc.tar' -type f | while read -r dir
         do
                 cd $(dirname $dir)
                 decryptFile $(basename $dir) "$keyfile" "$crypfile" $remove
